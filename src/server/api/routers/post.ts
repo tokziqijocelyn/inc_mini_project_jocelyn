@@ -9,7 +9,6 @@ import {
 // Zod Validaition =================================
 const FormInput = z.object({
   formName: z.string(),
-  formSection: z.array(z.number()), // Assuming formSection is an array of numbers
 });
 
 const Form = z.object({
@@ -34,13 +33,12 @@ export const postRouter = createTRPCRouter({
   createForm: publicProcedure.mutation(async ({ ctx }) => {
     const inputData = {
       formName: "New Form",
-      formSection: [0],
     };
 
     // Validate the input against the FormCreateInput type
     const validInput = FormInput.parse(inputData);
 
-    console.log("Form is created?")
+    console.log("Form is created?");
 
     return ctx.db.form.create({
       data: validInput,
@@ -50,11 +48,30 @@ export const postRouter = createTRPCRouter({
   //READ FORMS==================================
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     const forms = await ctx.db.form.findMany();
-    const allForms = forms.map((form) => Form.parse({formId: form.formId, formName:form.formName, formCreated: form.createdAt}));
-    console.log("GET ALL FORMS WAS CALLED")
-    console.log(allForms)
+    const allForms = forms.map((form) =>
+      Form.parse({
+        formId: form.formId,
+        formName: form.formName,
+        formCreated: form.createdAt,
+      }),
+    );
+
     return allForms;
   }),
+
+  getFormById: publicProcedure
+    .input(z.object({ formId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const form = await ctx.db.form.findUnique({
+        where: { formId: input.formId },
+      });
+
+      if (!form) {
+        throw new Error("Form not found");
+      }
+      return form;
+    }),
+
   //============================================
   //UPDATE FORMS================================
   updateForm: publicProcedure.input(Form).mutation(async ({ ctx, input }) => {
@@ -76,8 +93,7 @@ export const postRouter = createTRPCRouter({
       throw new Error("Task not found");
     }
 
-    if (input.formName){
-
+    if (input.formName) {
     }
     const form = await ctx.db.form.update({
       where: {

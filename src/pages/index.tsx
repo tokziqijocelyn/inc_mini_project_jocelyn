@@ -62,7 +62,7 @@ const Feed = () => {
       ) : (
         <div className="grid grid-cols-3">
           {allForm.map((data) => (
-            <Link href={`/[selectedForm]/${data.formId}`}>
+            <Link href={`/form/${data.formId}`}>
               <div
                 className="m-4 flex flex-col items-center gap-5 rounded-xl bg-white p-5 text-center hover:cursor-pointer hover:border-2 hover:border-indigo-400"
                 key={data.formId}

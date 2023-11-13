@@ -4,24 +4,21 @@ import { api } from "~/utils/api";
 type Props = {};
 
 const FormCreationWizard = (props: Props) => {
+  const ctx = api.useUtils();
   const {
     mutate: createFormMutate,
     isLoading: isFormCreateLoading,
     isError: isFormError,
-  } = api.post.createForm.useMutation();
-  const createForm = () => {
-    console.log("createForm button is pressed");
-    createFormMutate(undefined, {
-      onSuccess: (data) => {
-        console.log("createFormMutate success");
-        console.log(data);
-      },
-      onError: (error) => {
-        console.error(error);
-        console.log("createFormMutate error");
-      },
-    });
-  };
+  } = api.post.createForm.useMutation({
+    onSuccess: () => {
+      console.log("createFormMutate success");
+      ctx.post.getAllForms.invalidate()
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("createFormMutate error");
+    },
+  });
 
   return (
     <div className="h-75 bg-green-100 p-4 font-sans">
@@ -29,7 +26,9 @@ const FormCreationWizard = (props: Props) => {
       <div className="flex justify-center bg-red-500 px-6 py-6 ">
         <div
           className="flex h-40 w-32 flex-col items-center justify-center rounded-md bg-blue-500 px-6 py-6 hover:cursor-pointer"
-          onClick={createForm}
+          onClick={() => {
+            createFormMutate();
+          }}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
