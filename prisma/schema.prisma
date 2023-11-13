@@ -15,16 +15,14 @@ datasource db {
 }
 
 model Form {
-  formId    String   @id @default(cuid())
-  formName  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  formId      String        @id @default(cuid())
+  formName    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  FormSection FormSection[]
 
   // createdBy   User          @relation(fields: [createdById], references: [id])
   // createdById String
-  formSection Int[]
-  FormSection FormSection[]
-
   @@index([formName])
 }
 

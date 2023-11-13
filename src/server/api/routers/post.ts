@@ -15,7 +15,7 @@ const FormInput = z.object({
 const Form = z.object({
   formId: z.string(),
   formName: z.string(),
-  formSection: z.array(z.number()),
+  formCreated: z.date(),
 });
 // =================================================
 
@@ -50,7 +50,10 @@ export const postRouter = createTRPCRouter({
   //READ FORMS==================================
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     const forms = await ctx.db.form.findMany();
-    return forms.map((form) => Form.parse(form));
+    const allForms = forms.map((form) => Form.parse({formId: form.formId, formName:form.formName, formCreated: form.createdAt}));
+    console.log("GET ALL FORMS WAS CALLED")
+    console.log(allForms)
+    return allForms;
   }),
   //============================================
   //UPDATE FORMS================================
@@ -61,7 +64,7 @@ export const postRouter = createTRPCRouter({
 
     let formUpdateData = {
       formName: input.formName,
-      formSection: input.formSection,
+      formCreated: input.formCreated,
     };
 
     // Fetch the current task with its associated contentId
@@ -82,7 +85,6 @@ export const postRouter = createTRPCRouter({
       },
       data: {
         formName: input.formName,
-        formSection: input.formSection,
       },
     });
 
