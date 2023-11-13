@@ -1,6 +1,10 @@
 import React from 'react'
 
-type Props = {}
+type Props = {
+  email: string,
+  password: string,
+  handleEmailChange: (email: string, password: string) => Array<string>,
+}
 
 const FormDetails = (props: Props) => {
   return (

@@ -6,7 +6,21 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 
+// Zod Validaition =================================
+const FormInput = z.object({
+  formName: z.string(),
+  formSection: z.array(z.number()), // Assuming formSection is an array of numbers
+});
+
+const Form = z.object({
+  formId: z.string(),
+  formName: z.string(),
+  formSection: z.array(z.number()),
+});
+// =================================================
+
 export const postRouter = createTRPCRouter({
+  //To test the api
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
@@ -15,28 +29,74 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
-  create: protectedProcedure
-    .input(z.object({ name: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      // simulate a slow db call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  //to update to protectedProcedure when you have auth
+  //FORM CREATION============================
+  createForm: publicProcedure.mutation(async ({ ctx }) => {
+    const inputData = {
+      formName: "New Form",
+      formSection: [0],
+    };
 
-      return ctx.db.post.create({
-        data: {
-          name: input.name,
-          createdBy: { connect: { id: ctx.session.user.id } },
+    // Validate the input against the FormCreateInput type
+    const validInput = FormInput.parse(inputData);
+
+    console.log("Form is created?")
+
+    return ctx.db.form.create({
+      data: validInput,
+    });
+  }),
+  // ==========================================
+  //READ FORMS==================================
+  getAllForms: publicProcedure.query(async ({ ctx }) => {
+    const forms = await ctx.db.form.findMany();
+    return forms.map((form) => Form.parse(form));
+  }),
+  //============================================
+  //UPDATE FORMS================================
+  updateForm: publicProcedure.input(Form).mutation(async ({ ctx, input }) => {
+    if (!input || input.formId) {
+      throw new Error("Form not found");
+    }
+
+    let formUpdateData = {
+      formName: input.formName,
+      formSection: input.formSection,
+    };
+
+    // Fetch the current task with its associated contentId
+    const formFound = await ctx.db.form.findUnique({
+      where: { formId: input.formId },
+    });
+
+    if (!formFound) {
+      throw new Error("Task not found");
+    }
+
+    if (input.formName){
+
+    }
+    const form = await ctx.db.form.update({
+      where: {
+        formId: input.formId,
+      },
+      data: {
+        formName: input.formName,
+        formSection: input.formSection,
+      },
+    });
+
+    return Form.parse(form);
+  }),
+  //============================================
+  //FORM DELETION ==============================
+  deleteForm: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.form.delete({
+        where: {
+          formId: input,
         },
       });
     }),
-
-  getLatest: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.post.findFirst({
-      orderBy: { createdAt: "desc" },
-      where: { createdBy: { id: ctx.session.user.id } },
-    });
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
 });
