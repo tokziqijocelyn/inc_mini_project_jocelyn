@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import {
@@ -40,11 +41,41 @@ export const postRouter = createTRPCRouter({
 
     console.log("Form is created?");
 
-    return ctx.db.form.create({
+    const latestForm = await ctx.db.form.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 1,
+      select: {
+        formId: true,
+      },
+    });
+
+    if (!latestForm) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Form not found",
+      });
+    }
+
+    console.log(latestForm);
+
+    await ctx.db.form.create({
       data: validInput,
     });
+
+    const newFormSection = await ctx.db.formSection.create({
+      data: {
+        formId: latestForm.formId,
+        sectionName: "New Section",
+        sectionDesc: "New Section Description",
+      },
+    });
+
+    return newFormSection;
   }),
-  // ==========================================
+
+  // ===========================================
   //READ FORMS==================================
   getAllForms: publicProcedure.query(async ({ ctx }) => {
     const forms = await ctx.db.form.findMany();
@@ -74,35 +105,36 @@ export const postRouter = createTRPCRouter({
 
   //============================================
   //UPDATE FORMS================================
-  updateForm: publicProcedure.input(z.object({formId: z.string(), formName: z.string()})).mutation(async ({ ctx, input }) => {
-    if (!input || !input.formId) {
-      throw new Error("Form not found");
-    }
-    let formUpdateData = {
-      formName: input.formName
-    };
-
-    // Fetch the current task with its associated contentId
-    const formFound = await ctx.db.form.findUnique({
-      where: { formId: input.formId },
-    });
-
-    if (!formFound) {
-      throw new Error("Task not found");
-    }
-
-    if (input.formName) {
-    }
-    return ctx.db.form.update({
-      where: {
-        formId: input.formId,
-      },
-      data: {
+  updateForm: publicProcedure
+    .input(z.object({ formId: z.string(), formName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!input || !input.formId) {
+        throw new Error("Form not found");
+      }
+      let formUpdateData = {
         formName: input.formName,
-      },
-    });
+      };
 
-  }),
+      // Fetch the current task with its associated contentId
+      const formFound = await ctx.db.form.findUnique({
+        where: { formId: input.formId },
+      });
+
+      if (!formFound) {
+        throw new Error("Task not found");
+      }
+
+      if (input.formName) {
+      }
+      return ctx.db.form.update({
+        where: {
+          formId: input.formId,
+        },
+        data: {
+          formName: input.formName,
+        },
+      });
+    }),
   //============================================
   //FORM DELETION ==============================
   deleteForm: publicProcedure

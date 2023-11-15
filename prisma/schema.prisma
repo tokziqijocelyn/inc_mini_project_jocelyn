@@ -74,9 +74,9 @@ model Form {
 
 model FormSection {
   sectionId    String @id @default(cuid())
-  sectionIndex Int    @default(0)
-  sectionName  String
-  sectionDesc  String
+  sectionIndex Int    @default(sequence())
+  sectionName  String @default("New Section")
+  sectionDesc  String @default("New Section Description")
 
   formFK   Form       @relation(fields: [formId], references: [formId])
   formId   String
@@ -101,10 +101,12 @@ model Question {
 }
 
 model QuestionOptions {
-  optionId   String   @id @default(cuid())
-  options    Json     @default(dbgenerated())
-  questionFK Question @relation(fields: [questionId], references: [questionId])
-  questionId String
+  optionId    String   @id @default(cuid())
+  optionTitle String
+  value       String
+  optionIndex Int      @default(0)
+  questionFK  Question @relation(fields: [questionId], references: [questionId])
+  questionId  String
 
   @@index([optionId])
 }

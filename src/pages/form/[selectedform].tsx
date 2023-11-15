@@ -4,7 +4,6 @@ import { api } from "~/utils/api";
 import QuestionCreationWizard from "../components/QuestionCreationWizard";
 import { error } from "console";
 import { set } from "zod";
-import { Familjen_Grotesk } from "@next/font/google";
 
 type Props = {};
 type FormTitleProps = {
@@ -15,8 +14,7 @@ type FormTitleProps = {
 const FormTitle = (): ReactNode => {
   const router = useRouter();
   const { selectedform: formId } = router.query;
-  //   const formId = router.query.selectedform;
-  // // console.log(router.query, "helolo")
+
   const [change, setChange] = useState(false);
 
   const { data, isLoading, error } = api.post.getFormById.useQuery({
