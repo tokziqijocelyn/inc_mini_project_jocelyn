@@ -14,18 +14,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Form {
-  formId      String        @id @default(cuid())
-  formName    String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  FormSection FormSection[]
-
-  // createdBy   User          @relation(fields: [createdById], references: [id])
-  // createdById String
-  @@index([formName])
-}
-
 // Necessary for Next auth
 model Account {
   id                String  @id @default(cuid())
@@ -72,6 +60,18 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Form {
+  formId      String        @id @default(cuid())
+  formName    String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  FormSection FormSection[]
+
+  // createdBy   User          @relation(fields: [createdById], references: [id])
+  // createdById String
+  @@index([formName])
+}
+
 model FormSection {
   sectionId    String @id @default(cuid())
   sectionIndex Int    @default(0)
@@ -86,16 +86,25 @@ model FormSection {
 }
 
 model Question {
-  questionId    String   @id @default(cuid())
+  questionId    String  @id @default(cuid())
   questionName  String
   questionDesc  String
   questionType  String
-  questionIndex Int      @default(0)
-  required      Boolean  @default(false)
-  options       String[] @default([])
+  questionIndex Int     @default(0)
+  required      Boolean @default(false)
 
-  formSectionFK FormSection @relation(fields: [formSectionId], references: [sectionId])
-  formSectionId String
+  formSectionFK   FormSection       @relation(fields: [formSectionId], references: [sectionId])
+  formSectionId   String
+  QuestionOptions QuestionOptions[]
 
   @@index([questionName])
+}
+
+model QuestionOptions {
+  optionId   String   @id @default(cuid())
+  options    Json     @default(dbgenerated())
+  questionFK Question @relation(fields: [questionId], references: [questionId])
+  questionId String
+
+  @@index([optionId])
 }

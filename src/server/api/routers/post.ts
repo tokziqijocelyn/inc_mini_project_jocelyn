@@ -74,14 +74,12 @@ export const postRouter = createTRPCRouter({
 
   //============================================
   //UPDATE FORMS================================
-  updateForm: publicProcedure.input(Form).mutation(async ({ ctx, input }) => {
-    if (!input || input.formId) {
+  updateForm: publicProcedure.input(z.object({formId: z.string(), formName: z.string()})).mutation(async ({ ctx, input }) => {
+    if (!input || !input.formId) {
       throw new Error("Form not found");
     }
-
     let formUpdateData = {
-      formName: input.formName,
-      formCreated: input.formCreated,
+      formName: input.formName
     };
 
     // Fetch the current task with its associated contentId
@@ -95,7 +93,7 @@ export const postRouter = createTRPCRouter({
 
     if (input.formName) {
     }
-    const form = await ctx.db.form.update({
+    return ctx.db.form.update({
       where: {
         formId: input.formId,
       },
@@ -104,7 +102,6 @@ export const postRouter = createTRPCRouter({
       },
     });
 
-    return Form.parse(form);
   }),
   //============================================
   //FORM DELETION ==============================
