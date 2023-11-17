@@ -22,6 +22,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <SessionProvider session={session}>
       <DndContext>
+        <style jsx global>{`
+          * {
+            font-family: ${lexend.style.fontFamily};
+          }
+        `}</style>
         <Component {...pageProps} />
       </DndContext>
     </SessionProvider>

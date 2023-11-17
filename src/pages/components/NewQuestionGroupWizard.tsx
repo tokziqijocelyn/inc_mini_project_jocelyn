@@ -37,7 +37,6 @@ const NewQuestionGroupWizard = ({
   let questionContent;
 
   const handleInputChange = (index: number, valueOfTitle: string) => {
-    console.log("meow");
     const newItems = [...qnOptions];
 
     if (!newItems[index]) {
@@ -59,7 +58,7 @@ const NewQuestionGroupWizard = ({
       questionContent = (
         <div>
           text
-          <input className="bg-red-200" type="text" disabled/>
+          <input className="bg-red-200" type="text" disabled />
         </div>
       );
 
@@ -67,7 +66,7 @@ const NewQuestionGroupWizard = ({
     case "number":
       questionContent = (
         <div>
-          number <input type="number" disabled/>
+          number <input type="number" disabled />
         </div>
       );
       break;
@@ -116,18 +115,15 @@ const NewQuestionGroupWizard = ({
         <div>
           multi NEED LABELS TOO
           <div className="flex flex-col justify-start bg-red-300">
-            <form>
+          <form>
               {qnOptions.map((option) => {
                 return (
                   <div
-                    ref={setNodeRef}
-                    {...listeners}
-                    {...attributes}
                     key={option.optionId}
                     className="flex flex-row justify-start bg-green-300"
                   >
                     <input
-                      type="checkbox"
+                      type="check"
                       name={option.questionId}
                       value={option.value}
                       disabled
@@ -143,8 +139,8 @@ const NewQuestionGroupWizard = ({
                         );
                         console.log("KINDA RUDE CB", e.target.value);
                       }}
-                      
                     />
+                    
                   </div>
                 );
               })}
@@ -171,7 +167,7 @@ const NewQuestionGroupWizard = ({
   }, [qnOptions]);
 
   return (
-    <div style={{ visibility: showWizard ? "visible" : "hidden" }}>
+    <div style={{ display: showWizard ? "block" : "none" }}>
       {/* This div will be appended regardless of the qnType */}
       <div className="m-4 bg-emerald-300 p-4">
         <h1>

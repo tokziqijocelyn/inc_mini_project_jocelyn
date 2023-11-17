@@ -24,29 +24,47 @@ const Section = (props: Props) => {
   // This is the id of the question group
   const [newQuestionUUID, setQuestionUUID] = useState(crypto.randomUUID());
 
+  const ctx = api.useUtils();
+
+  const {
+    mutate: createSectionMutate,
+    isLoading: isSectionCreateLoading,
+    isError: isSectionError,
+  } = api.post.createSection.useMutation({
+    onSuccess: () => {
+      console.log("createSectionMutate success");
+      ctx.post.getAllSections.invalidate();
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("createSectionMutate error");
+    },
+  });
+
   useEffect(() => {
     console.log("QUESTION OPTIONS", qnOptions);
   }, [qnOptions]);
 
   return (
     <div>
-      {" "}
-      <div>
-        <div>{props.sectionTitle}</div>
-        <div>{props.sectionDesc}</div>
+      <div className="rounded-md bg-violet-300 p-5">
+        <div className="p-1 text-3xl">{props.sectionTitle}</div>
+        <div className="mb-5 p-1">{props.sectionDesc}</div>
 
-        <SortableContext items={[1, 2, 3]}>
-          <NewQuestionGroupWizard
-            qnType={qnType}
-            showWizard={showWizard}
-            setShowWizard={setShowWizard}
-            newQuestionUUID={newQuestionUUID}
-            qnOptions={qnOptions}
-            setQnOptions={setQnOptions}
-          />
-        </SortableContext>
-        <div className="flex gap-4 bg-orange-200 p-5">
-          <button className="rounded-lg bg-red-100 p-2">+ New Section</button>
+        {/* <SortableContext items={[1, 2, 3]}> */}
+        <NewQuestionGroupWizard
+          qnType={qnType}
+          showWizard={showWizard}
+          setShowWizard={setShowWizard}
+          newQuestionUUID={newQuestionUUID}
+          qnOptions={qnOptions}
+          setQnOptions={setQnOptions}
+        />
+        {/* </SortableContext> */}
+        <div className="flex gap-4 p-5">
+          <button className="rounded-md bg-red-100 p-1" onClick={()=>{createSectionMutate({formId: newQuestionUUID})}}>
+            + New Section
+          </button>
           <DropdownOpt setQnType={setQnType} setShowWizard={setShowWizard} />
         </div>
       </div>

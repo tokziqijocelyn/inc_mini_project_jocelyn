@@ -12,7 +12,7 @@ const Form = () => {
   formId = formId as string;
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4">
+    <div className="min-h-screen bg-slate-100 p-4 rounded-md">
       <FormTitle formId={formId}/>
       <QuestionCreationWizard formId={formId as string} />
       

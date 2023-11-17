@@ -50,16 +50,16 @@ const FormTitle = (props: Props): ReactNode => {
   };
 
   return (
-    <div className="bg-red-100 p-4">
-      FORM TITLE:
+    <div className="bg-violet-600 rounded-md mt-3 mb-3 p-4 text-4xl text-white">
       <input
         type="text"
+        className="bg-violet-600 rounded-md p-4"
         value={formName}
         onChange={(e) => {
           handleInputChange(e);
         }}
       />
-      {change && <button onClick={handleSaveChanges}>Save changes</button>}
+      {change && <button onClick={handleSaveChanges} className="p-4">Save changes</button>}
     </div>
   );
 };

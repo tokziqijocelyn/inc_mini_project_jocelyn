@@ -105,7 +105,7 @@ model QuestionOptions {
   optionTitle String
   value       String
   optionIndex Int      @default(0)
-  questionFK  Question @relation(fields: [questionId], references: [questionId])
+  questionFK  Question @relation(fields: [questionId], references: [questionId], onUpdate: Cascade, onDelete: Cascade)
   questionId  String
 
   @@index([optionId])

@@ -41,6 +41,10 @@ export const postRouter = createTRPCRouter({
 
     console.log("Form is created?");
 
+    await ctx.db.form.create({
+      data: validInput,
+    });
+
     const latestForm = await ctx.db.form.findFirst({
       orderBy: {
         createdAt: "desc",
@@ -60,10 +64,6 @@ export const postRouter = createTRPCRouter({
 
     console.log(latestForm);
 
-    await ctx.db.form.create({
-      data: validInput,
-    });
-
     const newFormSection = await ctx.db.formSection.create({
       data: {
         formId: latestForm.formId,
@@ -74,6 +74,29 @@ export const postRouter = createTRPCRouter({
 
     return newFormSection;
   }),
+
+  createSection: publicProcedure
+    .input(z.object({ formId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      console.log("MEOW");
+      console.log("THIS IS THE FORMID IN SECTION CREATION", input.formId);
+      return ctx.db.formSection.create({
+        data: {
+          formId: input.formId,
+          sectionName: "New Section",
+          sectionDesc: "New Section Description",
+        },
+      });
+      // const newFormSection = await ctx.db.formSection.create({
+      //   data: {
+      //     formId: input.formId,
+      //     sectionName: "New Section",
+      //     sectionDesc: "New Section Description",
+      //   },
+      // });
+
+      // return newFormSection;
+    }),
 
   // ===========================================
   //READ FORMS==================================

@@ -12,7 +12,8 @@ const FormCreationWizard = (props: Props) => {
   } = api.post.createForm.useMutation({
     onSuccess: () => {
       console.log("createFormMutate success");
-      ctx.post.getAllForms.invalidate()
+      
+      ctx.post.getAllForms.invalidate();
     },
     onError: (error) => {
       console.error(error);
@@ -21,11 +22,10 @@ const FormCreationWizard = (props: Props) => {
   });
 
   return (
-    <div className="h-75 bg-green-100 p-4 font-sans">
-      FormCreationWizard
-      <div className="flex justify-center bg-red-500 px-6 py-6 ">
+    <div className="h-75 bg-violet-100 p-4">
+      <div className="flex justify-center ">
         <div
-          className="flex h-40 w-32 flex-col items-center justify-center rounded-md bg-blue-500 px-6 py-6 hover:cursor-pointer"
+          className="flex h-40 w-32 flex-col items-center justify-center rounded-md bg-white px-6 py-6 hover:cursor-pointer"
           onClick={() => {
             createFormMutate();
           }}
@@ -44,6 +44,7 @@ const FormCreationWizard = (props: Props) => {
               d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
+          Blank
         </div>
       </div>
     </div>
