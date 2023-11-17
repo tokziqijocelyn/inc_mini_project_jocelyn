@@ -4,30 +4,37 @@ import { option } from "../../types";
 import { SortableContext } from "@dnd-kit/sortable";
 import { api } from "~/utils/api";
 import NewQuestionGroupWizard from "./NewQuestionGroupWizard";
-import Section from "./Section";
-
 type Props = {
-  formId: string;
+  newQuestionUUID: string;
+  sectionTitle: string;
+  sectionDesc: string;
 };
 
-const QuestionCreationWizard = (props: Props) => {
-  const {
-    data: sectionData,
-    isLoading: sectionLoading,
-    error: sectionError,
-  } = api.post.getAllSections.useQuery({ formId: props.formId });
+const Section = (props: Props) => {
+  const [qnOptions, setQnOptions] = useState<option[]>([
+    {
+      questionId: props.newQuestionUUID,
+      optionId: crypto.randomUUID(),
+      optionTitle: "New question",
+      value: "",
+    },
+  ]);
+  const [qnType, setQnType] = useState<string>("text");
+  const [showWizard, setShowWizard] = useState<boolean>(false);
+  // This is the id of the question group
+  const [newQuestionUUID, setQuestionUUID] = useState(crypto.randomUUID());
 
- 
+  useEffect(() => {
+    console.log("QUESTION OPTIONS", qnOptions);
+  }, [qnOptions]);
+
   return (
-    <div className="flex flex-col">
-      {sectionData?.map((section) => (
-        <div className="bg-orange-200" key={section.sectionId}>
-         <Section newQuestionUUID={props.formId} sectionTitle={section.sectionName} sectionDesc={section.sectionDesc}/>
-        </div>
-      ))}
+    <div>
+      {" "}
+      <div>
+        <div>{props.sectionTitle}</div>
+        <div>{props.sectionDesc}</div>
 
-      <h1>MEOW</h1>
-      {/* <div className="bg-orange-200">
         <SortableContext items={[1, 2, 3]}>
           <NewQuestionGroupWizard
             qnType={qnType}
@@ -38,13 +45,13 @@ const QuestionCreationWizard = (props: Props) => {
             setQnOptions={setQnOptions}
           />
         </SortableContext>
-        <div className=" flex gap-4 bg-orange-200 p-5">
+        <div className="flex gap-4 bg-orange-200 p-5">
           <button className="rounded-lg bg-red-100 p-2">+ New Section</button>
           <DropdownOpt setQnType={setQnType} setShowWizard={setShowWizard} />
         </div>
-      </div> */}
+      </div>
     </div>
   );
 };
 
-export default QuestionCreationWizard;
+export default Section;

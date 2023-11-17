@@ -103,6 +103,16 @@ export const postRouter = createTRPCRouter({
       return form;
     }),
 
+  // GET ALL SECTIONS ==========================
+  getAllSections: publicProcedure
+    .input(z.object({ formId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const sections = await ctx.db.formSection.findMany({
+        where: { formId: input.formId },
+      });
+      return sections;
+    }),
+
   //============================================
   //UPDATE FORMS================================
   updateForm: publicProcedure
