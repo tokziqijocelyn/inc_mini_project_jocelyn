@@ -14,12 +14,15 @@ const QuestionCreationWizard = (props: Props) => {
     error: sectionError,
   } = api.post.getAllSections.useQuery({ formId: props.formId });
 
+  if (sectionLoading) {
+    return <div>Loading...</div>;
+  }
  
   return (
     <div className="flex flex-col">
       {sectionData?.map((section) => (
         <div key={section.sectionId}>
-         <Section newQuestionUUID={props.formId} sectionTitle={section.sectionName} sectionDesc={section.sectionDesc}/>
+         <Section sectionData={sectionData} sectionId={section.sectionId} formId={props.formId} sectionTitle={section.sectionName} sectionDesc={section.sectionDesc}/>
         </div>
       ))}
     </div>

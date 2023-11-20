@@ -4,3 +4,10 @@ export type option = {
   optionTitle: string;
   value: string;
 };
+
+export type section = {
+  sectionId: string;
+  sectionName: string;
+  sectionDesc: string;
+  formId: string;
+};

@@ -113,9 +113,9 @@ const NewQuestionGroupWizard = ({
     case "multi":
       questionContent = (
         <div>
-          multi NEED LABELS TOO
-          <div className="flex flex-col justify-start bg-red-300">
-          <form>
+          multi uhuhuhuh
+          <div className="flex flex-col justify-start">
+            <form>
               {qnOptions.map((option) => {
                 return (
                   <div
@@ -123,7 +123,8 @@ const NewQuestionGroupWizard = ({
                     className="flex flex-row justify-start bg-green-300"
                   >
                     <input
-                      type="check"
+                      className="bg-blue-200"
+                      type="checkbox"
                       name={option.questionId}
                       value={option.value}
                       disabled
@@ -140,7 +141,6 @@ const NewQuestionGroupWizard = ({
                         console.log("KINDA RUDE CB", e.target.value);
                       }}
                     />
-                    
                   </div>
                 );
               })}

@@ -78,7 +78,7 @@ model FormSection {
   sectionName  String @default("New Section")
   sectionDesc  String @default("New Section Description")
 
-  formFK   Form       @relation(fields: [formId], references: [formId])
+  formFK   Form       @relation(fields: [formId], references: [formId], onUpdate: Cascade, onDelete: Cascade)
   formId   String
   Question Question[]
 
@@ -93,7 +93,7 @@ model Question {
   questionIndex Int     @default(0)
   required      Boolean @default(false)
 
-  formSectionFK   FormSection       @relation(fields: [formSectionId], references: [sectionId])
+  formSectionFK   FormSection       @relation(fields: [formSectionId], references: [sectionId], onUpdate: Cascade, onDelete: Cascade)
   formSectionId   String
   QuestionOptions QuestionOptions[]
 

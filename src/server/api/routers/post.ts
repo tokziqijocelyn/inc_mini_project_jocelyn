@@ -80,22 +80,15 @@ export const postRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       console.log("MEOW");
       console.log("THIS IS THE FORMID IN SECTION CREATION", input.formId);
-      return ctx.db.formSection.create({
+      const newFormSection = await ctx.db.formSection.create({
         data: {
           formId: input.formId,
           sectionName: "New Section",
           sectionDesc: "New Section Description",
         },
       });
-      // const newFormSection = await ctx.db.formSection.create({
-      //   data: {
-      //     formId: input.formId,
-      //     sectionName: "New Section",
-      //     sectionDesc: "New Section Description",
-      //   },
-      // });
 
-      // return newFormSection;
+      return newFormSection;
     }),
 
   // ===========================================
@@ -168,6 +161,22 @@ export const postRouter = createTRPCRouter({
         },
       });
     }),
+
+    updateSection: publicProcedure.input(z.object({sectionId: z.string(), sectionName: z.string(), sectionDesc: z.string()})).mutation(async ({ctx, input}) => {
+      if (!input || !input.sectionId) {
+        throw new Error("Section not found");
+      }
+
+      return ctx.db.formSection.update({
+        where: {
+          sectionId: input.sectionId,
+        },
+        data: {
+          sectionName: input.sectionName,
+          sectionDesc: input.sectionDesc
+        },
+      });
+    }),
   //============================================
   //FORM DELETION ==============================
   deleteForm: publicProcedure
@@ -176,6 +185,15 @@ export const postRouter = createTRPCRouter({
       return ctx.db.form.delete({
         where: {
           formId: input,
+        },
+      });
+    }),
+  deleteSection: publicProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.formSection.delete({
+        where: {
+          sectionId: input,
         },
       });
     }),
