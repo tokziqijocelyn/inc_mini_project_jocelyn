@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { option } from "../../types";
+import Switch from "./Switch";
+import { api } from "~/utils/api";
+import { set } from "zod";
 
 const NewQuestionGroupWizard = ({
   qnType,
@@ -9,6 +12,8 @@ const NewQuestionGroupWizard = ({
   newQuestionUUID,
   qnOptions,
   setQnOptions,
+  sectionId,
+  setNewQuestionUUID
 }: {
   qnType: string;
   showWizard: boolean;
@@ -16,10 +21,17 @@ const NewQuestionGroupWizard = ({
   newQuestionUUID: string;
   qnOptions: option[];
   setQnOptions: React.Dispatch<React.SetStateAction<option[]>>;
+  sectionId: string;
+  setNewQuestionUUID: React.Dispatch<React.SetStateAction<string>>;
 }) => {
+  const [qnTitle, setQnTitle] = useState<string>("New Question");
+  const [qnDesc, setQnDesc] = useState<string>("New Question");
+  const [required, setRequired] = useState<boolean>(false);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",
   });
+
+  const ctx = api.useUtils();
 
   //==================================================================================================
   // This is when the user clicks the add option button
@@ -34,7 +46,70 @@ const NewQuestionGroupWizard = ({
       },
     ]);
   };
+
   let questionContent;
+
+  const {
+    mutate: createQuestionMutate,
+    isLoading: isQuestionCreateLoading,
+    isError: isQuestionCreateError,
+  } = api.post.createQuestion.useMutation({
+    onSuccess: () => {
+      ctx.post.getAllQuestionsBySections.invalidate();
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("createQuestionMutate error");
+    },
+  });
+
+  const {
+    mutate: createQuestionOptions,
+    isLoading: isQuestionOptionsCreateLoading,
+    isError: isQuestionOptionsCreateError,
+  } = api.post.createOption.useMutation({
+    onSuccess: () => {
+      ctx.post.getAllQuestionsBySections.invalidate();
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("createQuestionOptions error");
+    },
+  });
+
+  const createQuestionAndOptions = async () => {
+    console.log("Creating Question...", newQuestionUUID);
+    createQuestionMutate({
+      questionId: newQuestionUUID,
+      questionName: qnTitle,
+      questionDesc: qnDesc,
+      questionType: qnType,
+      formSectionId: sectionId,
+      required: required,
+    });
+
+    console.log("Creating QuestionOptions...", qnOptions);
+    await Promise.all(
+      qnOptions.map((option) =>
+        createQuestionOptions({
+          questionId: newQuestionUUID,
+          optionTitle: option.optionTitle,
+          value: option.value,
+        }),
+      ),
+    );
+
+    ctx.post.getAllOptionsByQuestions.invalidate();
+
+    setNewQuestionUUID(crypto.randomUUID());
+    setQnOptions([
+      { questionId: newQuestionUUID, optionId: "", optionTitle: "", value: "" },
+    ]);
+    setQnTitle("New Question");
+    setQnDesc("New Description");
+
+    console.log("Finished creating Question and QuestionOptions");
+  };
 
   const handleInputChange = (index: number, valueOfTitle: string) => {
     const newItems = [...qnOptions];
@@ -53,36 +128,47 @@ const NewQuestionGroupWizard = ({
     setQnOptions(newItems);
   };
 
+  const handleQnTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQnTitle(e.target.value);
+  };
+
+  const handleQnDescChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQnDesc(e.target.value);
+  };
+
   switch (qnType) {
     case "text":
       questionContent = (
         <div>
-          text
-          <input className="bg-red-200" type="text" disabled />
+          <input
+            className="m-4 rounded-md border-b p-2"
+            placeholder="Long Text answer"
+            type="text"
+            disabled
+          />
         </div>
       );
 
       break;
     case "number":
       questionContent = (
-        <div>
-          number <input type="number" disabled />
+        <div className="flex gap-4">
+          Number Input
+          <input type="number" disabled />
         </div>
       );
       break;
     case "single":
       questionContent = (
         <div>
-          I need them labels boi
           <div className="flex flex-col justify-start bg-red-300">
             <form>
               {qnOptions.map((option) => {
                 return (
                   <div
                     key={option.optionId}
-                    className="flex flex-row justify-start bg-green-300"
+                    className="flex flex-row justify-start gap-3 bg-green-300 p-2"
                   >
-                    {newQuestionUUID}
                     <input
                       className="bg-blue-200"
                       type="text"
@@ -113,7 +199,6 @@ const NewQuestionGroupWizard = ({
     case "multi":
       questionContent = (
         <div>
-          multi uhuhuhuh
           <div className="flex flex-col justify-start">
             <form>
               {qnOptions.map((option) => {
@@ -149,6 +234,13 @@ const NewQuestionGroupWizard = ({
         </div>
       );
       break;
+    default:
+      questionContent = (
+        <div>
+          text
+          <input className="bg-red-200" type="text" disabled />
+        </div>
+      );
   }
 
   useEffect(() => {
@@ -163,7 +255,7 @@ const NewQuestionGroupWizard = ({
   }, [qnType]);
 
   useEffect(() => {
-    console.log("QNOPTIONS", qnOptions[1]?.optionId);
+    console.log("QNOPTIONS", qnOptions);
   }, [qnOptions]);
 
   return (
@@ -171,11 +263,22 @@ const NewQuestionGroupWizard = ({
       {/* This div will be appended regardless of the qnType */}
       <div className="m-4 bg-emerald-300 p-4">
         <h1>
-          Question title: <input type="text" />
+          {qnOptions.length}
+
+          <input
+            type="text"
+            value={qnTitle}
+            onChange={handleQnTitleChange}
+            className=" m-2 p-3 text-4xl "
+          />
+          <input
+            type="text"
+            value={qnDesc}
+            onChange={handleQnDescChange}
+            className="m-2 mb-10 p-3"
+          />
         </h1>
-
         {questionContent}
-
         {qnType == "multi" || qnType == "single" ? (
           <div>
             <button
@@ -190,10 +293,24 @@ const NewQuestionGroupWizard = ({
         ) : (
           <div></div>
         )}
-      </div>
-      <div>Save Question</div>
-      <div className="bg-red-100" onClick={() => setShowWizard(false)}>
-        Cancel Question
+        <div className="mt-10 flex gap-4 p-4">
+          <div
+            className="rounded-md bg-green-300 p-2 hover:cursor-pointer"
+            onClick={() => {
+              createQuestionAndOptions();
+              setShowWizard(false);
+            }}
+          >
+            Save Question
+          </div>
+          <div
+            className="rounded-md bg-red-100 p-2 hover:cursor-pointer"
+            onClick={() => setShowWizard(false)}
+          >
+            Cancel Question
+          </div>
+        </div>
+        Required <Switch required={required} setRequired={setRequired} />
       </div>
     </div>
   );

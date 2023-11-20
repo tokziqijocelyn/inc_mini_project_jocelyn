@@ -91,6 +91,51 @@ export const postRouter = createTRPCRouter({
       return newFormSection;
     }),
 
+  createQuestion: publicProcedure
+    .input(
+      z.object({
+        questionId: z.string(),
+        questionName: z.string(),
+        questionDesc: z.string(),
+        questionType: z.string(),
+        required: z.boolean(),
+        formSectionId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.question.create({
+        data: {
+          questionId: input.questionId,
+          questionName: input.questionName,
+          questionDesc: input.questionDesc,
+          questionType: input.questionType,
+          required: input.required,
+          formSectionId: input.formSectionId,
+        },
+      });
+    }),
+
+  createOption: publicProcedure
+    .input(
+      z.object({
+        optionTitle: z.string(),
+        value: z.string(),
+        questionId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+
+      const options = await ctx.db.questionOptions.create({
+        data: {
+          optionTitle: input.optionTitle,
+          value: input.value,
+          questionId: input.questionId,
+        },
+      });
+
+      console.log(options)
+      return options;
+    }),
   // ===========================================
   //READ FORMS==================================
   getAllForms: publicProcedure.query(async ({ ctx }) => {
@@ -102,7 +147,6 @@ export const postRouter = createTRPCRouter({
         formCreated: form.createdAt,
       }),
     );
-
     return allForms;
   }),
 
@@ -128,6 +172,24 @@ export const postRouter = createTRPCRouter({
       });
       return sections;
     }),
+
+  getAllQuestionsBySections: publicProcedure
+    .input(z.object({ sectionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const questions = await ctx.db.question.findMany({
+        where: { formSectionId: input.sectionId },
+      });
+      return questions;
+    }),
+
+  getAllOptionsByQuestions: publicProcedure
+  .input(z.object({ questionId: z.string() }))
+  .query(async ({ ctx, input }) => {
+    const options = await ctx.db.questionOptions.findMany({
+      where: { questionId: input.questionId },
+    });
+    return options;
+  }),
 
   //============================================
   //UPDATE FORMS================================
@@ -162,7 +224,15 @@ export const postRouter = createTRPCRouter({
       });
     }),
 
-    updateSection: publicProcedure.input(z.object({sectionId: z.string(), sectionName: z.string(), sectionDesc: z.string()})).mutation(async ({ctx, input}) => {
+  updateSection: publicProcedure
+    .input(
+      z.object({
+        sectionId: z.string(),
+        sectionName: z.string(),
+        sectionDesc: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       if (!input || !input.sectionId) {
         throw new Error("Section not found");
       }
@@ -173,7 +243,7 @@ export const postRouter = createTRPCRouter({
         },
         data: {
           sectionName: input.sectionName,
-          sectionDesc: input.sectionDesc
+          sectionDesc: input.sectionDesc,
         },
       });
     }),

@@ -18,6 +18,158 @@ type Props = {
   }[];
 };
 
+// ==================================================================================================
+type QuestionProps = {
+  sectionId: string;
+};
+
+type OptionProps = {
+  questionId: string;
+  questionType: string;
+};
+
+const QuestionInSection = (props: QuestionProps) => {
+  const {
+    data: allQuestions,
+    isLoading: isAllQuestionsLoading,
+    isError: isAllQuestionsError,
+  } = api.post.getAllQuestionsBySections.useQuery({
+    sectionId: props.sectionId,
+  });
+
+  return (
+    <div>
+      {allQuestions?.map((question) => (
+        <div key={question.questionId} className="m-3 rounded-md bg-white p-4">
+          <div className="flex gap-10">
+            <div className="flex flex-col ">
+              {question.questionIndex}.<h1>{question.questionName}</h1>
+              {question.questionDesc}
+            </div>
+            <OptionInQuestion
+              questionId={question.questionId}
+              questionType={question.questionType}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const OptionInQuestion = (props: OptionProps) => {
+  const {
+    data: allQuestionsOptions,
+    isLoading: isAllQuestionsOptionsLoading,
+    isError: isAllQuestionsOptionsError,
+  } = api.post.getAllOptionsByQuestions.useQuery({
+    questionId: props.questionId,
+  });
+
+  let questionContent;
+
+  switch (props.questionType) {
+    case "text":
+      questionContent = (
+        <div>
+          {allQuestionsOptions?.map((option) => {
+            return (
+              <div key={option.optionId}>
+                {option.optionTitle}
+                <input
+                  className="m-4 rounded-md border-b p-2"
+                  placeholder="Long Text answer"
+                  type="text"
+                  disabled
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+
+      break;
+    case "number":
+      questionContent = (
+        <div className="flex gap-4">
+          {allQuestionsOptions?.map((option) => {
+            return (
+              <div key={option.optionId}>
+                {option.optionTitle}
+                <input
+                  className="m-4 rounded-md border-b p-2"
+                  placeholder="Number In"
+                  type="number"
+                  disabled
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+      break;
+    case "single":
+      questionContent = (
+        <div>
+          <div className="flex flex-col justify-start ">
+            <form>
+              {allQuestionsOptions?.map((option) => {
+                return (
+                  <div key={option.optionId}>
+                    {option.optionTitle}
+                    <input
+                      className="m-4 rounded-md border-b p-2"
+                      type="radio"
+                      disabled
+                    />
+                  </div>
+                );
+              })}
+            </form>
+          </div>
+        </div>
+      );
+      break;
+
+    case "multi":
+      questionContent = (
+        <div>
+          <div className="flex flex-col justify-start">
+            <form>
+              {allQuestionsOptions?.map((option) => {
+                return (
+                  <div key={option.optionId}>
+                    {option.optionTitle}
+                    <input
+                      className="m-4 rounded-md border-b p-2"
+                      type="checkbox"
+                      disabled
+                    />
+                  </div>
+                );
+              })}
+            </form>
+          </div>
+        </div>
+      );
+      break;
+    default:
+      questionContent = (
+        <div>
+          <input className="bg-red-200" type="text" disabled />
+        </div>
+      );
+      break;
+  }
+  return (
+    <div>
+      {props.questionType}
+      {questionContent}
+    </div>
+  );
+};
+//===================================================================================================
+
 const Section = (props: Props) => {
   const [change, setChange] = useState(false);
   const [sectionTitle, setSectionTitle] = useState<string>(props.sectionTitle);
@@ -45,22 +197,6 @@ const Section = (props: Props) => {
   };
 
   const {
-    mutate: createSectionMutate,
-    isLoading: isSectionCreateLoading,
-    isError: isSectionError,
-  } = api.post.createSection.useMutation({
-    onSuccess: () => {
-      console.log("createSectionMutate success");
-      ctx.post.getAllSections.invalidate();
-    },
-    onError: (error) => {
-      console.error(error);
-
-      console.log("createSectionMutate error");
-    },
-  });
-
-  const {
     mutate: deleteSectionMutate,
     isLoading: isSectionDeleteLoading,
     isError: isSectionDeleteError,
@@ -75,6 +211,10 @@ const Section = (props: Props) => {
     },
   });
 
+  useEffect(() => {
+    setQnType("text");
+  }, []);
+
   const {
     mutate: updateSectionMutate,
     isLoading: isSectionUpdateLoading,
@@ -87,6 +227,21 @@ const Section = (props: Props) => {
     onError: (error) => {},
   });
 
+  // const {
+  //   mutate: createQuestionMutate,
+  //   isLoading: isQuestionCreateLoading,
+  //   isError: isQuestionCreateError,
+  // } = api.post.createQuestion.useMutation({
+  //   onSuccess: () => {
+  //     console.log("create Question success");
+  //     ctx.post.getAllQuestionsBySections.invalidate();
+  //   },
+  //   onError: (error) => {
+  //     console.error(error);
+  //     console.log("createQuestionMutate error");
+  //   },
+  // });
+
   // useEffect(() => {
   //   console.log("QUESTION OPTIONS", qnOptions);
   // }, [qnOptions]);
@@ -96,7 +251,10 @@ const Section = (props: Props) => {
   }, [props.sectionData.length]);
 
   useEffect(() => {
-    if (sectionTitle !== props.sectionTitle || sectionDesc !== props.sectionDesc){
+    if (
+      sectionTitle !== props.sectionTitle ||
+      sectionDesc !== props.sectionDesc
+    ) {
       setChange(true);
     }
   }, [sectionDesc, sectionTitle]);
@@ -110,7 +268,7 @@ const Section = (props: Props) => {
               type="text"
               value={sectionTitle}
               onChange={handleTitleChange}
-              className="bg-violet-300 p-1 text-3xl"
+              className="box-content bg-violet-300 p-1 text-3xl"
             ></input>
             <input
               type="text"
@@ -119,6 +277,7 @@ const Section = (props: Props) => {
               className="mb-5 bg-violet-300 p-1"
             ></input>
           </div>
+
           {change && (
             <div
               onClick={() => {
@@ -158,6 +317,8 @@ const Section = (props: Props) => {
           )}
         </div>
 
+        <QuestionInSection sectionId={props.sectionId} />
+
         {/* <SortableContext items={[1, 2, 3]}> */}
         <NewQuestionGroupWizard
           qnType={qnType}
@@ -166,18 +327,12 @@ const Section = (props: Props) => {
           newQuestionUUID={newQuestionUUID}
           qnOptions={qnOptions}
           setQnOptions={setQnOptions}
+          sectionId={props.sectionId}
+          setNewQuestionUUID={setQuestionUUID}
         />
         {/* </SortableContext> */}
 
         <div className="flex gap-4 p-5">
-          <button
-            className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            onClick={() => {
-              createSectionMutate({ formId: props.formId });
-            }}
-          >
-            Add Section
-          </button>
           <DropdownOpt setQnType={setQnType} setShowWizard={setShowWizard} />
         </div>
       </div>

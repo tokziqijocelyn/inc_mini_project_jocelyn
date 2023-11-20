@@ -90,7 +90,7 @@ model Question {
   questionName  String
   questionDesc  String
   questionType  String
-  questionIndex Int     @default(0)
+  questionIndex Int     @default(sequence())
   required      Boolean @default(false)
 
   formSectionFK   FormSection       @relation(fields: [formSectionId], references: [sectionId], onUpdate: Cascade, onDelete: Cascade)
@@ -104,9 +104,9 @@ model QuestionOptions {
   optionId    String   @id @default(cuid())
   optionTitle String
   value       String
-  optionIndex Int      @default(0)
+  optionIndex Int      @default(sequence())
   questionFK  Question @relation(fields: [questionId], references: [questionId], onUpdate: Cascade, onDelete: Cascade)
   questionId  String
 
-  @@index([optionId])
+  @@index([optionTitle])
 }
