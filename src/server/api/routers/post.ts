@@ -103,6 +103,8 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input)
+
       return ctx.db.question.create({
         data: {
           questionId: input.questionId,
@@ -124,7 +126,7 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-
+      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input)
       const options = await ctx.db.questionOptions.create({
         data: {
           optionTitle: input.optionTitle,

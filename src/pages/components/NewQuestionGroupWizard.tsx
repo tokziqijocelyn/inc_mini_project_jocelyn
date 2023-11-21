@@ -13,7 +13,7 @@ const NewQuestionGroupWizard = ({
   qnOptions,
   setQnOptions,
   sectionId,
-  setNewQuestionUUID
+  setNewQuestionUUID,
 }: {
   qnType: string;
   showWizard: boolean;
@@ -49,20 +49,7 @@ const NewQuestionGroupWizard = ({
 
   let questionContent;
 
-  const {
-    mutate: createQuestionMutate,
-    isLoading: isQuestionCreateLoading,
-    isError: isQuestionCreateError,
-  } = api.post.createQuestion.useMutation({
-    onSuccess: () => {
-      ctx.post.getAllQuestionsBySections.invalidate();
-    },
-    onError: (error) => {
-      console.error(error);
-      console.log("createQuestionMutate error");
-    },
-  });
-
+  
   const {
     mutate: createQuestionOptions,
     isLoading: isQuestionOptionsCreateLoading,
@@ -76,6 +63,39 @@ const NewQuestionGroupWizard = ({
       console.log("createQuestionOptions error");
     },
   });
+
+  const {
+    mutate: createQuestionMutate,
+    isLoading: isQuestionCreateLoading,
+    isError: isQuestionCreateError,
+  } = api.post.createQuestion.useMutation({
+    onSuccess: () => {
+      qnOptions.map((option) =>
+        createQuestionOptions({
+          questionId: newQuestionUUID,
+          optionTitle: option.optionTitle,
+          value: option.value,
+        }),
+      ),
+      setNewQuestionUUID(crypto.randomUUID());
+      setQnOptions([
+        {
+          questionId: newQuestionUUID,
+          optionId: "",
+          optionTitle: "",
+          value: "",
+        },
+      ]);
+      setQnTitle("New Question");
+      setQnDesc("New Description");
+      ctx.post.getAllQuestionsBySections.invalidate();
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("createQuestionMutate error");
+    },
+  });
+
 
   const createQuestionAndOptions = async () => {
     console.log("Creating Question...", newQuestionUUID);
@@ -297,7 +317,14 @@ const NewQuestionGroupWizard = ({
           <div
             className="rounded-md bg-green-300 p-2 hover:cursor-pointer"
             onClick={() => {
-              createQuestionAndOptions();
+              createQuestionMutate({
+                questionId: newQuestionUUID,
+                questionName: qnTitle,
+                questionDesc: qnDesc,
+                questionType: qnType,
+                formSectionId: sectionId,
+                required: required,
+              });
               setShowWizard(false);
             }}
           >

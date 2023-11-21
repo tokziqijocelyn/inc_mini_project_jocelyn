@@ -4,6 +4,7 @@ import { option } from "../../types";
 import { SortableContext } from "@dnd-kit/sortable";
 import { api } from "~/utils/api";
 import NewQuestionGroupWizard from "./NewQuestionGroupWizard";
+import { set } from "zod";
 type Props = {
   formId: string;
   sectionTitle: string;
@@ -43,7 +44,8 @@ const QuestionInSection = (props: QuestionProps) => {
         <div key={question.questionId} className="m-3 rounded-md bg-white p-4">
           <div className="flex gap-10">
             <div className="flex flex-col ">
-              {question.questionIndex}.<h1>{question.questionName}</h1>
+              {question.questionIndex}.
+              <h1 className="text-2xl">{question.questionName}</h1>
               {question.questionDesc}
             </div>
             <OptionInQuestion
@@ -68,20 +70,86 @@ const OptionInQuestion = (props: OptionProps) => {
 
   let questionContent;
 
+  type optionType = {
+    optionId: string;
+    optionTitle: string;
+    value: string;
+    optionIndex: number;
+    questionId: string;
+  };
+
+  const [option, setOption] = useState<
+    {
+      optionId: string;
+      optionTitle: string;
+      value: string;
+      optionIndex: number;
+      questionId: string;
+    }[]
+  >(allQuestionsOptions!);
+
+  // const handleTitleChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   index: number,
+  // ) => {
+  //   const newItems = [...option];
+
+  //   if (!newItems[index]) {
+  //     return;
+  //   }
+
+  //   console.log("This is the index", index);
+  //   console.log(e.target.value);
+  //   console.log(newItems);
+
+  //   newItems[index] = {
+  //     optionId: newItems[0]?.optionId ?? "",
+  //     optionTitle: e.target.value,
+  //     value: newItems[0]?.value ?? "",
+  //     optionIndex: newItems[0]?.optionIndex ?? 0,
+  //     questionId: newItems[0]?.questionId ?? "",
+  //   };
+
+  //   console.log(newItems);
+  //   setOption(newItems);
+  // };
+
+  if (isAllQuestionsOptionsLoading) return <div>Loading...</div>;
+
   switch (props.questionType) {
     case "text":
       questionContent = (
         <div>
           {allQuestionsOptions?.map((option) => {
+            const [title, setTitle] = useState<string>(
+              allQuestionsOptions![0]?.optionTitle ?? "",
+            );
+
+            const handleTitleChange = (
+              e: React.ChangeEvent<HTMLInputElement>,
+            ) => {
+              setTitle(e.target.value);
+            };
+
+            let optionIndex = allQuestionsOptions.indexOf(option);
             return (
               <div key={option.optionId}>
-                {option.optionTitle}
+                <input
+                  type="text"
+                  onChange={(e) => {
+                    handleTitleChange(e);
+                  }}
+                  value={allQuestionsOptions[optionIndex]?.optionTitle}
+                />
+
                 <input
                   className="m-4 rounded-md border-b p-2"
                   placeholder="Long Text answer"
                   type="text"
                   disabled
                 />
+
+                <button>Save</button>
               </div>
             );
           })}
@@ -161,12 +229,7 @@ const OptionInQuestion = (props: OptionProps) => {
       );
       break;
   }
-  return (
-    <div>
-      {props.questionType}
-      {questionContent}
-    </div>
-  );
+  return <div>{questionContent}</div>;
 };
 //===================================================================================================
 
