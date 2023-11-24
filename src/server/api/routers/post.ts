@@ -103,7 +103,7 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input)
+      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input);
 
       return ctx.db.question.create({
         data: {
@@ -126,7 +126,7 @@ export const postRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input)
+      console.log("This is the input!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", input);
       const options = await ctx.db.questionOptions.create({
         data: {
           optionTitle: input.optionTitle,
@@ -135,7 +135,7 @@ export const postRouter = createTRPCRouter({
         },
       });
 
-      console.log(options)
+      console.log(options);
       return options;
     }),
   // ===========================================
@@ -185,13 +185,13 @@ export const postRouter = createTRPCRouter({
     }),
 
   getAllOptionsByQuestions: publicProcedure
-  .input(z.object({ questionId: z.string() }))
-  .query(async ({ ctx, input }) => {
-    const options = await ctx.db.questionOptions.findMany({
-      where: { questionId: input.questionId },
-    });
-    return options;
-  }),
+    .input(z.object({ questionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const options = await ctx.db.questionOptions.findMany({
+        where: { questionId: input.questionId },
+      });
+      return options;
+    }),
 
   //============================================
   //UPDATE FORMS================================
@@ -246,6 +246,54 @@ export const postRouter = createTRPCRouter({
         data: {
           sectionName: input.sectionName,
           sectionDesc: input.sectionDesc,
+        },
+      });
+    }),
+
+  updateQuestion: publicProcedure
+    .input(
+      z.object({
+        questionId: z.string(),
+        questionName: z.string(),
+        questionDesc: z.string(),
+        required: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!input || !input.questionId) {
+        throw new Error("Question not found");
+      }
+
+      return ctx.db.question.update({
+        where: {
+          questionId: input.questionId,
+        },
+        data: {
+          questionName: input.questionName,
+          questionDesc: input.questionDesc,
+          required: input.required,
+        },
+      });
+    }),
+
+  updateOptions: publicProcedure
+    .input(
+      z.object({
+        optionTitle: z.string(),
+        optionId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!input || !input.optionId) {
+        throw new Error("Question not found");
+      }
+
+      return ctx.db.questionOptions.update({
+        where: {
+          optionId: input.optionId,
+        },
+        data: {
+          optionTitle: input.optionTitle,
         },
       });
     }),

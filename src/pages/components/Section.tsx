@@ -59,6 +59,7 @@ const QuestionInSection = (props: QuestionProps) => {
   );
 };
 
+//=================================================================
 const OptionInQuestion = (props: OptionProps) => {
   const {
     data: allQuestionsOptions,
@@ -67,6 +68,20 @@ const OptionInQuestion = (props: OptionProps) => {
   } = api.post.getAllOptionsByQuestions.useQuery({
     questionId: props.questionId,
   });
+
+  const {
+    mutate: updateOptionMutate,
+    isLoading: isOptionUpdateLoading,
+    isError: isOptionUpdateError,
+  } = api.post.updateOptions.useMutation({
+    onSuccess: () => {
+      console.log("update Option success");
+    },
+    onError: (error) => {
+      console.error(error);
+      console.log("updateOptionMutate error");
+    },
+  })
 
   let questionContent;
 
@@ -87,32 +102,13 @@ const OptionInQuestion = (props: OptionProps) => {
       questionId: string;
     }[]
   >(allQuestionsOptions!);
+  React.useEffect(() => {
+    if (!allQuestionsOptions) return;
 
-  // const handleTitleChange = (
-  //   e: React.ChangeEvent<HTMLInputElement>,
-  //   index: number,
-  // ) => {
-  //   const newItems = [...option];
+    setOption(allQuestionsOptions);
+  }, [allQuestionsOptions]);
 
-  //   if (!newItems[index]) {
-  //     return;
-  //   }
-
-  //   console.log("This is the index", index);
-  //   console.log(e.target.value);
-  //   console.log(newItems);
-
-  //   newItems[index] = {
-  //     optionId: newItems[0]?.optionId ?? "",
-  //     optionTitle: e.target.value,
-  //     value: newItems[0]?.value ?? "",
-  //     optionIndex: newItems[0]?.optionIndex ?? 0,
-  //     questionId: newItems[0]?.questionId ?? "",
-  //   };
-
-  //   console.log(newItems);
-  //   setOption(newItems);
-  // };
+  const [change, setChange] = useState(false);
 
   if (isAllQuestionsOptionsLoading) return <div>Loading...</div>;
 
@@ -121,35 +117,16 @@ const OptionInQuestion = (props: OptionProps) => {
       questionContent = (
         <div>
           {allQuestionsOptions?.map((option) => {
-            const [title, setTitle] = useState<string>(
-              allQuestionsOptions![0]?.optionTitle ?? "",
-            );
-
-            const handleTitleChange = (
-              e: React.ChangeEvent<HTMLInputElement>,
-            ) => {
-              setTitle(e.target.value);
-            };
-
             let optionIndex = allQuestionsOptions.indexOf(option);
+
             return (
               <div key={option.optionId}>
-                <input
-                  type="text"
-                  onChange={(e) => {
-                    handleTitleChange(e);
-                  }}
-                  value={allQuestionsOptions[optionIndex]?.optionTitle}
-                />
-
                 <input
                   className="m-4 rounded-md border-b p-2"
                   placeholder="Long Text answer"
                   type="text"
                   disabled
                 />
-
-                <button>Save</button>
               </div>
             );
           })}
@@ -163,7 +140,6 @@ const OptionInQuestion = (props: OptionProps) => {
           {allQuestionsOptions?.map((option) => {
             return (
               <div key={option.optionId}>
-                {option.optionTitle}
                 <input
                   className="m-4 rounded-md border-b p-2"
                   placeholder="Number In"
@@ -181,10 +157,28 @@ const OptionInQuestion = (props: OptionProps) => {
         <div>
           <div className="flex flex-col justify-start ">
             <form>
-              {allQuestionsOptions?.map((option) => {
+              {allQuestionsOptions?.map((option, index) => {
                 return (
                   <div key={option.optionId}>
-                    {option.optionTitle}
+                    <input
+                      type="text"
+                      value={option.optionTitle}
+                      onChange={(e) => {
+                        setOption((prev) => {
+                          const newItems = [...prev];
+                          newItems[index] = {
+                            optionId: newItems[index]?.optionId ?? "",
+                            optionTitle: e.target.value,
+                            value: newItems[index]?.value ?? "",
+                            optionIndex: newItems[index]?.optionIndex ?? 0,
+                            questionId: newItems[index]?.questionId ?? "",
+                          };
+                          return newItems;
+                        });
+
+                        setChange(true);
+                      }}
+                    />
                     <input
                       className="m-4 rounded-md border-b p-2"
                       type="radio"
@@ -204,10 +198,29 @@ const OptionInQuestion = (props: OptionProps) => {
         <div>
           <div className="flex flex-col justify-start">
             <form>
-              {allQuestionsOptions?.map((option) => {
+              {option?.map((option, index) => {
                 return (
                   <div key={option.optionId}>
-                    {option.optionTitle}
+                    <input
+                      type="text"
+                      value={option.optionTitle}
+                      onChange={(e) => {
+                        setOption((prev) => {
+                          const newItems = [...prev];
+                          newItems[index] = {
+                            optionId: newItems[index]?.optionId ?? "",
+                            optionTitle: e.target.value,
+                            value: newItems[index]?.value ?? "",
+                            optionIndex: newItems[index]?.optionIndex ?? 0,
+                            questionId: newItems[index]?.questionId ?? "",
+                          };
+                          return newItems;
+                        });
+
+                        setChange(true);
+                      }}
+                    />
+
                     <input
                       className="m-4 rounded-md border-b p-2"
                       type="checkbox"
@@ -229,7 +242,12 @@ const OptionInQuestion = (props: OptionProps) => {
       );
       break;
   }
-  return <div>{questionContent}</div>;
+  return (
+    <div>
+      {questionContent}
+      {change && <button className="bg-green-200 p-1 rounded-sm">Save</button>}
+    </div>
+  );
 };
 //===================================================================================================
 

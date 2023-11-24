@@ -2,6 +2,7 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type AppType } from "next/app";
 import { DndContext } from "@dnd-kit/core";
+import toast, { Toaster } from "react-hot-toast";
 
 import { api } from "~/utils/api";
 
@@ -21,14 +22,15 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <DndContext>
-        <style jsx global>{`
-          * {
-            font-family: ${lexend.style.fontFamily};
-          }
-        `}</style>
-        <Component {...pageProps} />
-      </DndContext>
+      <Toaster/>
+        <DndContext>
+          <style jsx global>{`
+            * {
+              font-family: ${lexend.style.fontFamily};
+            }
+          `}</style>
+          <Component {...pageProps} />
+        </DndContext>     
     </SessionProvider>
   );
 };
