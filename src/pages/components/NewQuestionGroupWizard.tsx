@@ -96,41 +96,6 @@ const NewQuestionGroupWizard = ({
     },
   });
 
-
-  const createQuestionAndOptions = async () => {
-    console.log("Creating Question...", newQuestionUUID);
-    createQuestionMutate({
-      questionId: newQuestionUUID,
-      questionName: qnTitle,
-      questionDesc: qnDesc,
-      questionType: qnType,
-      formSectionId: sectionId,
-      required: required,
-    });
-
-    console.log("Creating QuestionOptions...", qnOptions);
-    await Promise.all(
-      qnOptions.map((option) =>
-        createQuestionOptions({
-          questionId: newQuestionUUID,
-          optionTitle: option.optionTitle,
-          value: option.value,
-        }),
-      ),
-    );
-
-    ctx.post.getAllOptionsByQuestions.invalidate();
-
-    setNewQuestionUUID(crypto.randomUUID());
-    setQnOptions([
-      { questionId: newQuestionUUID, optionId: "", optionTitle: "", value: "" },
-    ]);
-    setQnTitle("New Question");
-    setQnDesc("New Description");
-
-    console.log("Finished creating Question and QuestionOptions");
-  };
-
   const handleInputChange = (index: number, valueOfTitle: string) => {
     const newItems = [...qnOptions];
 
