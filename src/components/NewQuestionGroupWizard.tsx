@@ -25,7 +25,7 @@ const NewQuestionGroupWizard = ({
   setNewQuestionUUID: React.Dispatch<React.SetStateAction<string>>;
 }) => {
   const [qnTitle, setQnTitle] = useState<string>("New Question");
-  const [qnDesc, setQnDesc] = useState<string>("New Question");
+  const [qnDesc, setQnDesc] = useState<string>("Question description");
   const [required, setRequired] = useState<boolean>(false);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",
@@ -49,7 +49,6 @@ const NewQuestionGroupWizard = ({
 
   let questionContent;
 
-  
   const {
     mutate: createQuestionOptions,
     isLoading: isQuestionOptionsCreateLoading,
@@ -77,7 +76,7 @@ const NewQuestionGroupWizard = ({
           value: option.value,
         }),
       ),
-      setNewQuestionUUID(crypto.randomUUID());
+        setNewQuestionUUID(crypto.randomUUID());
       setQnOptions([
         {
           questionId: newQuestionUUID,
@@ -146,16 +145,15 @@ const NewQuestionGroupWizard = ({
     case "single":
       questionContent = (
         <div>
-          <div className="flex flex-col justify-start bg-red-300">
+          <div className="flex flex-col justify-start ">
             <form>
               {qnOptions.map((option) => {
                 return (
                   <div
                     key={option.optionId}
-                    className="flex flex-row justify-start gap-3 bg-green-300 p-2"
+                    className="m-4 mr-4 flex flex-row justify-start gap-3 pb-3 pt-3"
                   >
                     <input
-                      className="bg-blue-200"
                       type="text"
                       value={qnOptions[qnOptions.indexOf(option)]?.optionTitle}
                       onChange={(e) => {
@@ -246,22 +244,24 @@ const NewQuestionGroupWizard = ({
   return (
     <div style={{ display: showWizard ? "block" : "none" }}>
       {/* This div will be appended regardless of the qnType */}
-      <div className="m-4 bg-emerald-300 p-4">
+      <div className="m-4 bg-white rounded-md p-4">
         <h1>
           {qnOptions.length}
-
-          <input
-            type="text"
-            value={qnTitle}
-            onChange={handleQnTitleChange}
-            className=" m-2 p-3 text-4xl "
-          />
-          <input
-            type="text"
-            value={qnDesc}
-            onChange={handleQnDescChange}
-            className="m-2 mb-10 p-3"
-          />
+          <div className="flex flex-col">
+            <input
+              type="text"
+              value={qnTitle}
+              onChange={handleQnTitleChange}
+              className=" m-2 p-3 text-4xl "
+            />
+            <input
+              type="text"
+              value={qnDesc}
+              onChange={handleQnDescChange}
+              className="m-2 mb-4 bg-white  p-3"
+            />
+            <hr />
+          </div>
         </h1>
         {questionContent}
         {qnType == "multi" || qnType == "single" ? (
@@ -270,9 +270,9 @@ const NewQuestionGroupWizard = ({
               onClick={() => {
                 addOptionHandler("This is the label");
               }}
-              className="m-3 rounded-md bg-green-400 p-3"
+              className="m-3 rounded-md bg-violet-600 p-2 text-white"
             >
-              Add Option
+              + Add Option
             </button>
           </div>
         ) : (
@@ -280,7 +280,7 @@ const NewQuestionGroupWizard = ({
         )}
         <div className="mt-10 flex gap-4 p-4">
           <div
-            className="rounded-md bg-green-300 p-2 hover:cursor-pointer"
+            className="rounded-md bg-violet-600 p-2 text-white hover:cursor-pointer"
             onClick={() => {
               createQuestionMutate({
                 questionId: newQuestionUUID,
@@ -296,7 +296,7 @@ const NewQuestionGroupWizard = ({
             Save Question
           </div>
           <div
-            className="rounded-md bg-red-100 p-2 hover:cursor-pointer"
+            className="rounded-md  p-2 hover:cursor-pointer"
             onClick={() => setShowWizard(false)}
           >
             Cancel Question
