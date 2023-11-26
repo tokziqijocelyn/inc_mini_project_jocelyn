@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDraggable } from "@dnd-kit/core";
-import { option } from "../../types";
+import { option } from "../types";
 import Switch from "./Switch";
 import { api } from "~/utils/api";
 import { set } from "zod";

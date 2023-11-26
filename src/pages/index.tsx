@@ -5,8 +5,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 import { api } from "~/utils/api";
-import Header from "./components/Header";
-import FormCreationWizard from "./components/FormCreationWizard";
+import Header from "../components/Header";
+import FormCreationWizard from "../components/FormCreationWizard";
 import { on } from "events";
 
 function NoForms() {

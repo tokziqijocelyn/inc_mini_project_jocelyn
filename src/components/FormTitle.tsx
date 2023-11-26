@@ -3,7 +3,7 @@
 import { useRouter } from "next/router";
 import React, { ReactNode, useState, useEffect } from "react";
 import { api } from "~/utils/api";
-import QuestionCreationWizard from "../components/QuestionCreationWizard";
+import QuestionCreationWizard from "./QuestionCreationWizard";
 import { error } from "console";
 import { set } from "zod";
 

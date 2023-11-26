@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import DropdownOpt from "./DropdownOpt";
-import { option } from "../../types";
+import { option } from "../types";
 import { SortableContext } from "@dnd-kit/sortable";
 import { api } from "~/utils/api";
 import NewQuestionGroupWizard from "./NewQuestionGroupWizard";

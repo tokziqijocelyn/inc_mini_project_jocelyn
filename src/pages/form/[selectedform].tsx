@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
 import React, { ReactNode, useState, useEffect } from "react";
 import { api } from "~/utils/api";
-import QuestionCreationWizard from "../components/QuestionCreationWizard";
+import QuestionCreationWizard from "../../components/QuestionCreationWizard";
 import { error } from "console";
 import { set } from "zod";
-import FormTitle from "../components/FormTitle";
+import FormTitle from "../../components/FormTitle";
 
 const Form = () => {
   const router = useRouter();
